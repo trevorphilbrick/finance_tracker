@@ -150,6 +150,30 @@ func createExpense(c *gin.Context) {
 		return
 	}
 
+	// get and return all expenses from that category
+
+	query := " SELECT * FROM expenses WHERE category_id = ?;"
+
+	if err != nil {
+		c.Error(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		return
+	}
+
+	var expenses []Expense
+	rows, err := db.Query(query, expense.Category_id)
+
+	for rows.Next() {
+		var expense Expense
+		if err := rows.Scan(&expense.Category_id, &expense.Amount, &expense.Description, &expense.Id, &expense.Date); err != nil {
+			c.Error(err)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+			return
+		}
+		expenses = append(expenses, expense)
+	}
+
+	c.JSON(http.StatusOK, expenses)
 }
 
 // update expense in category

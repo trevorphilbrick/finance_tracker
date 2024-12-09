@@ -4,8 +4,9 @@ import { fetchExpenses } from "@/utils/fetch-Expenses";
 import { useQuery } from "@tanstack/react-query";
 import { Expense } from "@/types/expense";
 import { Button } from "./ui/button";
-import { Plus } from "lucide-react";
+import { CircleX, Plus } from "lucide-react";
 import { SheetTrigger } from "./ui/sheet";
+import type { Category } from "@/types/category";
 
 function SidebarCollapsibleGroup({
   item,
@@ -15,7 +16,7 @@ function SidebarCollapsibleGroup({
     id: number;
     name: string;
   };
-  setSelectedCategory: (name: string) => void;
+  setSelectedCategory: (category: Category) => void;
 }) {
   const { data } = useQuery({
     queryKey: [`expenses-${item.id}`],
@@ -27,14 +28,17 @@ function SidebarCollapsibleGroup({
         {data &&
           data.map((item: Expense) => (
             <SidebarContent>
-              <p className="ml-6 mb-2 text-slate-500">{item.description}</p>
+              <div className="flex justify-between mr-2">
+                <p className="ml-6 mb-2 text-slate-500">{item.description}</p>
+                <CircleX size={16} />
+              </div>
             </SidebarContent>
           ))}
         <SheetTrigger className="w-full">
           <Button
             variant="ghost"
             className="w-full"
-            onClick={() => setSelectedCategory(item.name)}
+            onClick={() => setSelectedCategory(item)}
           >
             <Plus /> Add Expense
           </Button>

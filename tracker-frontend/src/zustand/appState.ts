@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 type State = {
-  selectedCategory: string | null;
+  selectedCategory: { name: string | null; id: number | null };
 };
 
 type Action = {
@@ -10,8 +10,17 @@ type Action = {
 };
 
 export const useAppState = create<State & Action>((set) => ({
-  selectedCategory: null,
+  selectedCategory: {
+    name: null,
+    id: null,
+  },
   setSelectedCategory: (category) =>
     set(() => ({ selectedCategory: category })),
-  clearSelectedCategory: () => set({ selectedCategory: null }),
+  clearSelectedCategory: () =>
+    set({
+      selectedCategory: {
+        name: null,
+        id: null,
+      },
+    }),
 }));
