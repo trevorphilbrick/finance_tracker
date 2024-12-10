@@ -1,14 +1,16 @@
-export const addExpense = async (
-  id: number,
-  amount: number,
-  description: string
-) => {
+export const addExpense = async (values: {
+  id: number;
+  amount: number;
+  description: string;
+}) => {
+  const { id, amount, description } = values;
+  console.log(values);
   const response = await fetch(`http://localhost:8080/expense`, {
     method: "POST",
     body: JSON.stringify({
-      amount,
       category_id: id,
-      description,
+      amount: amount,
+      description: description,
     }),
   });
 
@@ -17,7 +19,4 @@ export const addExpense = async (
 
     return;
   }
-  const data = response.json();
-
-  return data;
 };

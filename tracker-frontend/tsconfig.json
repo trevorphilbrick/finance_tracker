@@ -1,5 +1,5 @@
 {
-  "files": [],
+  "files": [], // Use "include" instead of "files" for directories
   "references": [
     {
       "path": "./tsconfig.app.json"
@@ -9,9 +9,9 @@
     }
   ],
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": ".", // Enables relative paths
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"] // Maps "@/" to the "src" folder for cleaner imports
     }
   }
 }

@@ -7,16 +7,16 @@ import {
   SidebarHeader,
 } from "./ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
-import { Category } from "@/types/category";
 import { Collapsible, CollapsibleTrigger } from "@radix-ui/react-collapsible";
 import { ChevronDown } from "lucide-react";
 import SidebarCollapsibleGroup from "./SidebarCollapsibleGroup";
 import { Sheet } from "./ui/sheet";
 import AddExpenseSheet from "./AddExpenseSheet";
 import { useAppState } from "@/zustand/appState";
+import { Category } from "@/types/category";
 
 function Sidebar() {
-  const { isPending, isError, data, error } = useQuery({
+  const { data } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });

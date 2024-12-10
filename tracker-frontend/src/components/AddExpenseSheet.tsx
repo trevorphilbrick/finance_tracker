@@ -32,20 +32,19 @@ function AddExpenseSheet() {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       if (category.id) {
-        await addExpense(
-          category.id,
-          parseInt(values.amount),
-          values.description
-        );
+        await addExpense({
+          id: category.id,
+          amount: parseInt(values.amount),
+          description: values.description,
+        });
 
         form.reset();
       }
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [`expenses-${category.id}`],
       });
-      queryClient.setQueryData([`expenses-${category.id}`], data);
     },
   });
 

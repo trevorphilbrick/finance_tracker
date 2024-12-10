@@ -16,11 +16,11 @@ type Category struct {
 }
 
 type Expense struct {
-	Id          int          `json:"id"`
 	Category_id int          `json:"category_id"`
 	Amount      int          `json:"amount"`
 	Description string       `json:"description"`
-	Date        driver.Value `json:"date"`
+	Id          int          `json:"id,omitempty"`
+	Date        driver.Value `json:"date,omitempty"`
 }
 
 // get categories
@@ -124,6 +124,7 @@ func deleteCategory(c *gin.Context) {
 
 // add expense to category
 func createExpense(c *gin.Context) {
+
 	db := openDatabase()
 
 	defer db.Close()
@@ -136,7 +137,7 @@ func createExpense(c *gin.Context) {
 		return
 	}
 
-	stmt, err := db.Prepare("INSERT INTO expenses (category_id, description, amount) VALUES (?, ?, ?);")
+	stmt, err := db.Prepare("INSERT INTO expenses (category_id, amount, description) VALUES (?, ?, ?);")
 
 	if err != nil {
 		c.Error(err)
@@ -144,7 +145,7 @@ func createExpense(c *gin.Context) {
 		return
 	}
 
-	if _, err := stmt.Exec(expense.Category_id, expense.Description, expense.Amount); err != nil {
+	if _, err := stmt.Exec(expense.Category_id, expense.Amount, expense.Description); err != nil {
 		c.Error(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
 		return
@@ -152,7 +153,7 @@ func createExpense(c *gin.Context) {
 
 	// get and return all expenses from that category
 
-	query := " SELECT * FROM expenses WHERE category_id = ?;"
+	query := "SELECT id, category_id, amount, description, date FROM expenses WHERE category_id = ?;"
 
 	if err != nil {
 		c.Error(err)
@@ -165,9 +166,11 @@ func createExpense(c *gin.Context) {
 
 	for rows.Next() {
 		var expense Expense
-		if err := rows.Scan(&expense.Category_id, &expense.Amount, &expense.Description, &expense.Id, &expense.Date); err != nil {
+
+		if err := rows.Scan(&expense.Id, &expense.Category_id, &expense.Amount, &expense.Description, &expense.Date); err != nil {
 			c.Error(err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+
 			return
 		}
 		expenses = append(expenses, expense)
@@ -187,9 +190,9 @@ func deleteExpense(c *gin.Context) {
 
 	id := c.Params.ByName("id")
 
-	query := "DELETE FROM expenses WHERE id = ?;"
+	deleteQuery := "DELETE FROM expenses WHERE id = ?;"
 
-	db.QueryRow(query, id)
+	db.QueryRow(deleteQuery, id)
 
 	c.JSON(http.StatusAccepted, gin.H{"message": "success"})
 
@@ -204,7 +207,7 @@ func getCategory(c *gin.Context) {
 
 	id := c.Params.ByName("id")
 
-	query := " SELECT * FROM expenses WHERE category_id = ?;"
+	query := "SELECT category_id,  amount, description, id,  date FROM expenses WHERE category_id = ?;"
 
 	rows, err := db.Query(query, id)
 
