@@ -7,13 +7,19 @@ import (
 
 func createDatabase() {
 	db := openDatabase()
+	defer db.Close()
 
-	query := `
+	categoryQuery := `
 		CREATE TABLE IF NOT EXISTS categories (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name TEXT NOT NULL UNIQUE
 		);
-		CREATE TABLE IF NOT EXISTS sqlite_sequence(name,seq);
+	`
+	if _, err := db.Exec(categoryQuery); err != nil {
+		log.Fatal("Error creating categories table:", err)
+	}
+
+	expenseQuery := `
 	CREATE TABLE IF NOT EXISTS expenses (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			category_id INTEGER NOT NULL,
@@ -23,7 +29,9 @@ func createDatabase() {
 			FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE
 		);
 	`
-	db.Exec(query)
+	if _, err := db.Exec(expenseQuery); err != nil {
+		log.Fatal("Error creating expenses table:", err)
+	}
 }
 
 func openDatabase() (db *sql.DB) {

@@ -6,7 +6,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
 } from "./ui/sidebar";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Collapsible, CollapsibleTrigger } from "@radix-ui/react-collapsible";
 import { ChevronDown } from "lucide-react";
 import SidebarCollapsibleGroup from "./SidebarCollapsibleGroup";
@@ -23,22 +23,20 @@ import { useState } from "react";
 
 function Sidebar() {
   const [categoryName, setCategoryName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
 
-  const setSelectedCategory = useAppState((state) => state.setSelectedCategory);
+  const mutation = useMutation({
+    mutationFn: addCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    },
+  });
 
-  const onSelectAddCategory = async (name: string) => {
-    setIsLoading(true);
-    if (name != "") {
-      await addCategory({ name });
-      setCategoryName("");
-    }
-    setIsLoading(false);
-  };
+  const setSelectedCategory = useAppState((state) => state.setSelectedCategory);
 
   return (
     <Sheet>
@@ -67,8 +65,8 @@ function Sidebar() {
                 </Label>
                 <Button
                   className="flex-1"
-                  onClick={() => onSelectAddCategory(categoryName)}
-                  disabled={isLoading}
+                  onClick={() => mutation.mutate({ name: categoryName })}
+                  disabled={mutation.isPending}
                 >
                   Add Category
                 </Button>

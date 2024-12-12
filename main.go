@@ -232,6 +232,30 @@ func getCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, expenses)
 }
 
+// get expense
+
+func getExpense (c *gin.Context) {
+	db := openDatabase()
+
+	defer db.Close()
+
+	id := c.Params.ByName("id")
+
+	query := "SELECT category_id, amount, description, id, date FROM expenses WHERE id = ?;"
+
+	row := db.QueryRow(query, id)
+
+	var expense Expense
+
+	if err := row.Scan(&expense.Category_id, &expense.Amount, &expense.Description, &expense.Id, &expense.Date); err != nil {
+		c.Error(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, expense)
+}
+
 func main() {
 	r := gin.Default()
 
@@ -250,6 +274,9 @@ func main() {
 	r.DELETE("/expense/:id", deleteExpense)
 
 	r.GET("/category/:id", getCategory)
+
+	r.GET("/expense/:id", getExpense)
+
 
 	r.Run()
 }
