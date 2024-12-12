@@ -19,4 +19,6 @@ export const addExpense = async (values: {
 
     return;
   }
+
+  return response;
 };
